@@ -39,7 +39,14 @@ public class Tfidf {
 			Map<String,Double> temp = new HashMap<String,Double>();
 			String tString = allFile.get(i).toString();
 			String[] sp = tString.split(" ");
-			System.out.println(allFileList.get(i));
+			dictMap(tf(sp));
+		}
+//		System.out.println(dictMap);
+		for(int i = 0;i<totalFile;i++){
+			Map<String,Double> temp = new HashMap<String,Double>();
+			String tString = allFile.get(i).toString();
+			String[] sp = tString.split(" ");
+//			System.out.println(allFileList.get(i));
 //			//计算某篇文档的单词和数目
 //			temp = cal(sp);
 //			//得到总文档的单词和单词数
@@ -97,16 +104,29 @@ public class Tfidf {
 */
 	private Map<String, Double> tfidf(String[] sp, List<String> allFile) {
 		Map<String, Double> tfMap = tf(sp);
-		System.out.println(tfMap);
-//		Map<String,Double> idfMap = idf(tfMap,allFile);
+//		System.out.println(tfMap);
+		Map<String,Double> idfMap = idf(tfMap,allFile);
 //		System.out.println(idfMap);
-//		Map<String, Double> tfidfMap = tfIdf(tfMap,idfMap);
+		Map<String, Double> tfidfMap = tfIdf(tfMap,idfMap);
 //		System.out.println(tfidfMap);
 //		return tfidfMap;
-		return null;
+		return tfidfMap;
 	}
 
-    private Map<String, Double> tfIdf(Map<String, Double> tfMap,Map<String, Double> idfMap) {
+    private Map<String, Double> idf(Map<String, Double> tfMap,
+			List<String> allFile) {
+    	int totalCount = allFile.size();
+    	Map<String, Double> idfMap = new HashMap<String, Double>();
+    	List<Map.Entry<String, Double>> tfList = new ArrayList<Map.Entry<String,Double>>(tfMap.entrySet());
+    	
+    	for(int i = 0;i<tfMap.size();i++){
+    		idfMap.put(tfList.get(i).getKey(), Math.log((double)totalCount/(1+dictMap.get(tfList.get(i).getKey()))));
+    		
+    	}
+		return idfMap;
+	}
+
+	private Map<String, Double> tfIdf(Map<String, Double> tfMap,Map<String, Double> idfMap) {
 		List <Map.Entry<String, Double>> tfList = new ArrayList<Map.Entry<String,Double>>(tfMap.entrySet());
 		List <Map.Entry<String, Double>> idfList = new ArrayList<Map.Entry<String,Double>>(idfMap.entrySet());
 		HashMap<String, Double> temp = new HashMap<String, Double>();
@@ -138,7 +158,7 @@ public class Tfidf {
 	}
 
 
-	private Map<String, Integer> dictMap(Map<String, Double> tfMap, List<String> allFile) {
+	private void dictMap(Map<String, Double> tfMap) {
 //		int fileCount = allFile.size();
 		List <Map.Entry<String, Double>> tfList = new ArrayList<Map.Entry<String,Double>>(tfMap.entrySet());
 		Map<String, Double> idfMap = new HashMap<String, Double>();
@@ -149,7 +169,7 @@ public class Tfidf {
 				dictMap.put(tfList.get(i).getKey(), 1);
 			}
 		}
-		return dictMap;
+		
 	}
 
 

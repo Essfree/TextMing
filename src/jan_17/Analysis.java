@@ -34,14 +34,14 @@ public class Analysis {
 					count++;
 				}
 			}
-			cal[0][j] = count;
+			cal[j][0] = count;
 			count =  0;
 			for(int i = 0;i<newMap.size();i++){
 				if(infoIds.get(i).getKey().contains("Organic Inorganic")&&infoIds.get(i).getValue()==j){
 					count++;
 				}
 			}
-			cal[1][j] = count;
+			cal[j][1] = count;
 
 			count =  0;
 			for(int i = 0;i<newMap.size();i++){
@@ -49,7 +49,7 @@ public class Analysis {
 					count++;
 				}
 			}
-			cal[2][j] = count;
+			cal[j][2] = count;
 			
 			count =  0;
 			for(int i = 0;i<newMap.size();i++){
@@ -57,7 +57,7 @@ public class Analysis {
 					count++;
 				}
 			}
-			cal[3][j] = count;
+			cal[j][3] = count;
 			
 			count = 0;
 			for(int i = 0;i<newMap.size();i++){
@@ -65,7 +65,7 @@ public class Analysis {
 					count++;
 				}
 			}
-			cal[4][j] = count;
+			cal[j][4] = count;
 					
 			count = 0;
 			for(int i = 0;i<newMap.size();i++){
@@ -73,8 +73,34 @@ public class Analysis {
 					count++;
 				}
 			}
-			cal[5][j] = count;
+			cal[j][5] = count;
 		}
+		for (int i = 0; i < cal.length; i++) {
+			for (int j = 0; j < cal.length; j++) {
+				System.out.print(cal[i][j]+" ");
+			}
+			System.out.println();
+		}
+		
+//		int amount = 0;
+//		for(int i = 0;i<cal.length;i++){
+//			for(int j=0;j<cal.length;j++){
+//				System.out.print(cal[i][j]+" ");
+//				amount = amount+cal[i][j];
+//			}
+//			System.out.println();
+//		}
+//		System.out.println(amount);
+//		
+//		int count = 0;
+//		for(int i = 0;i<cal.length;i++){
+//			for(int j=0;j<cal.length;j++){
+//				if(i==j){
+//					count+=cal[i][j];
+//				}
+//			}
+//		}
+//		System.out.println((double)count/amount);
 		
 		double[][] t = new double[6][6];
 		for (int i = 0; i < cal.length; i++) {
@@ -84,14 +110,43 @@ public class Analysis {
 			}
 			for (int j = 0; j < cal.length; j++) {
 				t[i][j] = (double)cal[i][j]/m;
-			}
+//				t[i][j] = m;
+				}
 		}
+		System.out.println("按熵来算");
+		double[] e = new double[6];        
+		for(int i=0;i<t.length;i++){
+			for (int j = 0; j < t.length; j++) {
+				e[i] =e[i]+ (-(t[i][j]*((double)Math.log(t[i][j])/Math.log(2))));
+			}
+			System.out.println(e[i]);
+		}
+//		double eToAll = 0;
+//		int allMem = 0;
+//		for(int i = 0;i<cal.length;i++){
+//			for (int j = 0; j < cal.length; j++) {
+//				allMem = allMem+cal[i][j];
+//			}
+//		}
+//		for (int i = 0; i < e.length; i++) {
+//			int m = 0;
+//			for (int j = 0; j < cal.length; j++) {
+//				m = m+cal[i][j];
+//			}
+//			eToAll += (double)m/allMem*e[i];
+//		}
+
+//		System.out.println(eToAll);
+//		按纯度
+		System.out.println("按纯度来算");
 		for (int i = 0; i < t.length; i++) {
 			for (int j = 0; j < t.length; j++) {
 				System.out.print(t[i][j]+" ");
 			}
 			System.out.println();
 		}
+		
+		
+		
 	}
-
 }

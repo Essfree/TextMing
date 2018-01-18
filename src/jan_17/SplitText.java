@@ -39,6 +39,7 @@ public class SplitText {
 //		略迷
 //		System.out.println(srcPath.length());
 		//母文件夹中一共有多少个子文件和第一层子文件夹
+		String[] stemFileNames = new String[srcFiles.length]; 
 		for(int i = 0;i<srcFiles.length;i++){
 			//得到标准的绝对路径
 			String fileFullName = srcFiles[i].getCanonicalPath();
@@ -48,11 +49,15 @@ public class SplitText {
 			sb.append(dirTarget+"\\"+fileShortName);
 			if(!new File(fileFullName).isDirectory()){
 				splitToFile(fileFullName,sb.toString());
+				stemFileNames[i] = sb.toString();
 			}else{
 				System.out.println("this is a file "+fileFullName);
 				split(fileFullName);
 			}
 		}
+		if(stemFileNames.length > 0 && stemFileNames[0] != null){  
+            Stemmer.main(stemFileNames);  
+        }  
 	}
 	
 	/**

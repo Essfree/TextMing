@@ -12,7 +12,7 @@ public class KmeansCal {
 
 	public KmeansCal(Map<String, Map<String, Double>> tfidfMap, int k) throws IOException {
 		Map<String, Integer> fi = Process(tfidfMap,k);
-		String desDir="E:\\MUC\\textmining\\Result\\Result.txt";	
+		String desDir="E:\\MUC\\1.17\\Result\\Result.txt";	
 			saveToFile(fi,desDir);
 		
 	}
@@ -55,7 +55,7 @@ public class KmeansCal {
 	    int iterNum = 0;//迭代次数
 	    while(true){  
             System.out.println("Iteration No." + (iterNum++) + "----------------------");  
-            //3、计算每个点和每个聚类中心的距离  
+            //计算每个点和每个聚类中心的距离  
             for(int i = 0; i < snLength; i++){  
                 for(int j = 0; j < k; j++){  
                     distance[i][j] = getDistance(tfIdfMap.get(sampleName[i]),meansMap.get(j));  
@@ -66,14 +66,14 @@ public class KmeansCal {
             for(int i = 0; i < snLength; i++){  
                 nearestMeans[i] = findNearestMeans(distance, i);  
             }
-          //5、判断当前所有点属于的聚类序号是否已经全部是其离得最近的聚类
+            //判断当前所有点属于的聚类序号是否已经全部是其离得最近的聚类
             int okCount = 0;  
             for(int i = 0; i <snLength; i++){  
                 if(nearestMeans[i] == assignMeans[i]) okCount++;  
             }  
             System.out.println("okCount = " + okCount);  
             if(okCount == snLength || iterNum >= 10) break;  
-            //6、如果前面条件不满足，那么需要重新聚类再进行一次迭代，需要修改每个聚类的成员和每个点属于的聚类信息  
+            //如果前面条件不满足，那么需要重新聚类再进行一次迭代，需要修改每个聚类的成员和每个点属于的聚类信息  
             clusterMember.clear();  
             for(int i = 0; i < snLength; i++){  
                 assignMeans[i] = nearestMeans[i];  
@@ -88,7 +88,7 @@ public class KmeansCal {
                     clusterMember.put(nearestMeans[i], tempMem);  
                 }  
             }  
-            //7、重新计算每个聚类的中心点!  
+            //重新计算每个聚类的中心点!  
             for(int i = 0; i < k; i++){  
                 if(!clusterMember.containsKey(i)){//注意kmeans可能产生空聚类  
                     continue;  
@@ -97,7 +97,7 @@ public class KmeansCal {
                 Map<String, Double> tempMean = new TreeMap<String, Double>();  
                 tempMean.putAll(newMean);  
                 meansMap.put(i, tempMean);  
-            }  
+            }
         }  
         //8、形成聚类结果并且返回  
         Map<String, Integer> resMap = new TreeMap<String, Integer>();  
