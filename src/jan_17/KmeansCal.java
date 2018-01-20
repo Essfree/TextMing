@@ -38,7 +38,7 @@ public class KmeansCal {
 		int count = 0;
 		int snLength = tfIdfMap.size();
 		Set<Map.Entry<String, Map<String, Double>>> tfIdfMapSet = tfIdfMap.entrySet();  
-		//文件名称数组        
+		//文件名称数组      ，把所有的文件名存进了samplename数组  
 		for(Iterator<Map.Entry<String, Map<String, Double>>> it = tfIdfMapSet.iterator(); it.hasNext(); ){  
             Map.Entry<String, Map<String, Double>> me = it.next();  
             sampleName[count++] = me.getKey();  
@@ -71,8 +71,9 @@ public class KmeansCal {
             for(int i = 0; i <snLength; i++){  
                 if(nearestMeans[i] == assignMeans[i]) okCount++;  
             }  
-            System.out.println("okCount = " + okCount);  
-            if(okCount == snLength || iterNum >= 10) break;  
+            System.out.println("okCount = " + okCount); 
+//            不给定迭代次数
+            if(okCount == snLength) break;  
             //如果前面条件不满足，那么需要重新聚类再进行一次迭代，需要修改每个聚类的成员和每个点属于的聚类信息  
             clusterMember.clear();  
             for(int i = 0; i < snLength; i++){  
@@ -117,7 +118,6 @@ public class KmeansCal {
     private Map<String, Double> computeNewMean(Vector<Integer> clusterM,  
             Map<String, Map<String, Double>> allTestSampleMap,  
             String[] testSampleNames) {  
-        // TODO Auto-generated method stub  
         double memberNum = (double)clusterM.size();  
         Map<String, Double> newMeanMap = new TreeMap<String,Double>();  
         Map<String, Double> currentMemMap = new TreeMap<String,Double>();  

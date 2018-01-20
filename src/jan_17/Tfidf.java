@@ -56,7 +56,8 @@ public class Tfidf {
 		}
 		//将得到的总文档的单词逆序排序整理并取前20%
 //		Map<String, Integer> totalSort =sortMap(totalCount);
-//		System.out.println(tfIdfMap);
+		System.out.println(tfIdfMap.size());
+		
 		return tfIdfMap;
 	}
 	
@@ -142,18 +143,17 @@ public class Tfidf {
 			} 
 		});
 		HashMap<String, Double> tfidfMap = new HashMap<String, Double>();
-		int number = (int) (tfidfMap.size()*0.2+1);
-		int top = 20;
+//		int top = 250;
 		
-			if(tfidfList.size()>=20){
-				for (int i = 0; i < top; i++) {
-					tfidfMap.put(tfidfList.get(i).getKey(), tfidfList.get(i).getValue());
-				}
-			}else{
-				for(int i = 0;i< number;i++){
+//			if(tfidfList.size()>=top){
+//				for (int i = 0; i < top; i++) {
+//					tfidfMap.put(tfidfList.get(i).getKey(), tfidfList.get(i).getValue());
+//				}
+//			}else{
+				for(int i = 0;i< tfidfList.size();i++){
 					tfidfMap.put(tfidfList.get(i).getKey(),tfidfList.get(i).getValue());
 				}
-			}
+//			}
 		return tfidfMap;
 	}
 

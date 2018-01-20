@@ -55,9 +55,9 @@ public class SplitText {
 				split(fileFullName);
 			}
 		}
-		if(stemFileNames.length > 0 && stemFileNames[0] != null){  
-            Stemmer.main(stemFileNames);  
-        }  
+//		if(stemFileNames.length > 0 && stemFileNames[0] != null){  
+//            Stemmer.main(stemFileNames);  
+//        }  
 	}
 	
 	/**
