@@ -1,4 +1,4 @@
-package jan_17;
+package jan_25;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -12,7 +12,7 @@ public class KmeansCal {
 
 	public KmeansCal(Map<String, Map<String, Double>> tfidfMap, int k) throws IOException {
 		Map<String, Integer> fi = Process(tfidfMap,k);
-		String desDir="E:\\MUC\\1.17\\Result\\Result.txt";	
+		String desDir="E:\\MUC\\1.25\\Result\\Result.txt";	
 			saveToFile(fi,desDir);
 		
 	}
@@ -184,19 +184,24 @@ public class KmeansCal {
 	 */
 	public Map<Integer, Map<String, Double>> getInitPoint(
 			Map<String, Map<String, Double>> tfIdfMap, int k) {
-		int count = 0, i = 0;  
+		int count = 0,i = 0;  
         Map<Integer, Map<String, Double>> meansMap = new TreeMap<Integer, Map<String, Double>>();//保存K个聚类中心点向量  
         System.out.println("本次聚类的初始点对应的文件为：");  
         Set<Map.Entry<String, Map<String,Double>>> tfIdfSet = tfIdfMap.entrySet();  
         for(Iterator<Map.Entry<String, Map<String,Double>>> it = tfIdfSet.iterator();it.hasNext();){  
             Map.Entry<String, Map<String,Double>> me = it.next();  
 //            取的是第0个和第11个
-            if(count == i * tfIdfSet.size() / k){  
+            int temp = (int)(Math.random()*tfIdfSet.size());
+            count = (int)(Math.random()*tfIdfSet.size());
+            if(count <= temp){  
                 meansMap.put(i, me.getValue());  
                 System.out.println(me.getKey() + " map size is " + me.getValue().size());  
-                i++;  
+                i++;
             }  
-            count++;  
+            if(i == k){  
+            	break;
+            }
+            
         } 
 		return meansMap;
 	}
