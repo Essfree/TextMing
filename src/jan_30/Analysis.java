@@ -1,4 +1,4 @@
-package jan_25;
+package jan_30;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.sun.org.apache.xalan.internal.xsltc.compiler.Template;
 
 public class Analysis {
 
@@ -37,7 +39,7 @@ public class Analysis {
 			cal[j][0] = count;
 			count =  0;
 			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("Ecnomics")&&infoIds.get(i).getValue()==j){
+				if(infoIds.get(i).getKey().contains("database")&&infoIds.get(i).getValue()==j){
 					count++;
 				}
 			}
@@ -45,7 +47,7 @@ public class Analysis {
 
 			count =  0;
 			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("History")&&infoIds.get(i).getValue()==j){
+				if(infoIds.get(i).getKey().contains("machinelearning")&&infoIds.get(i).getValue()==j){
 					count++;
 				}
 			}
@@ -95,7 +97,6 @@ public class Analysis {
 					max = j;
 				}
 				m = m+cal[i][j];
-				
 			}
 			for (int j = 0; j < cal.length; j++) {
 				n += cal[j][max];
@@ -109,24 +110,42 @@ public class Analysis {
 			FP[max] = m - TP[max];
 			FN[max] = n - TP[max];
 		}
-		
 		for (int i = 0; i < cal.length; i++) {
+//			System.out.println("tp["+i+"] = "+TP[i]);
+			if(TP[i]==0){
+				System.err.println("聚类出错");
+				return;
+			}
 			TN[i] = all-TP[i]-FP[i]-FN[i];
 			System.out.println(TP[i]+" "+FP[i]+" "+FN[i]+" "+TN[i]);
 		}
 //		召回率
 		recall(TP,FN);
+//		精确度
+		precision(TP,FP);
 //		f值
 		fCal(TP,FP,FN);
+//		roc auc
 		rocCal(TP,FP,FN,TN);
 	}
 
+	private void precision(int[] tP, int[] fP) {
+		System.out.println("计算精确度");
+		for (int i = 0; i < fP.length; i++) {
+			double p = (double)tP[i]/(tP[i]+fP[i]);
+			System.out.print(p+" ");
+		}
+		System.out.println();
+		
+	}
+
 	private void rocCal(int[] tP, int[] fP, int[] fN,int[] tN) {
-		double TRP[] = new double[tP.length];
+		double TPR[] = new double[tP.length];
 		double FPR[] = new double[tP.length];
-		for (int i = 0; i < TRP.length; i++) {
-			TRP[i] = (double)(tP[i])/(tP[i]+fN[i]);
+		for (int i = 0; i < TPR.length; i++) {
+			TPR[i] = (double)(tP[i])/(tP[i]+fN[i]);
 			FPR[i]=(double)fP[i]/(fP[i]+tN[i]);
+		System.out.println("tpr = "+TPR[i]+" fpr i "+FPR[i]);
 		}
 		
 	}

@@ -1,4 +1,4 @@
-package jan_25;
+package jan_28;
 
 import java.io.IOException;
 import java.util.Map;
@@ -11,12 +11,12 @@ public class Main {
 //		SplitText st = new SplitText();
 //		String dataDir = "E:\\MUC\\1.25\\OriginalSample";
 //		st.split(dataDir);
-//		String splitDir = "E:\\MUC\\1.25\\Sample";
-//		Tfidf tI = new Tfidf();
-//		Map<String, Map<String, Double>> tfidfMap = tI.CalTfIdf(splitDir);
+		String splitDir = "E:\\MUC\\1.28\\Sample";
+		Tfidf tI = new Tfidf();
+		Map<String, Map<String, Double>> tfidfMap = tI.CalTfIdf(splitDir);
 		int classNum = 3;
-		String desDir = "E:\\MUC\\1.25\\Result\\Result.txt";
-//		new KmeansCal(tfidfMap,classNum,desDir);
+		String desDir = "E:\\MUC\\1.28\\Result\\Result.txt";
+		new KmeansCal(tfidfMap,classNum,desDir);
 		Analysis as = new Analysis();
 		as.analyData(desDir,classNum);
 	}

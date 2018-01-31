@@ -1,4 +1,4 @@
-package jan_25;
+package jan_28;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -37,7 +37,7 @@ public class Analysis {
 			cal[j][0] = count;
 			count =  0;
 			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("Ecnomics")&&infoIds.get(i).getValue()==j){
+				if(infoIds.get(i).getKey().contains("carbon")&&infoIds.get(i).getValue()==j){
 					count++;
 				}
 			}
@@ -118,6 +118,7 @@ public class Analysis {
 		recall(TP,FN);
 //		f值
 		fCal(TP,FP,FN);
+//		roc auc
 		rocCal(TP,FP,FN,TN);
 	}
 

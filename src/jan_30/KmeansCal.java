@@ -1,4 +1,4 @@
-package jan_25;
+package jan_30;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -106,6 +106,12 @@ public class KmeansCal {
         for(int i = 0; i < snLength; i++){  
             resMap.put(sampleName[i], assignMeans[i]);  
         }  
+        for (int i = 0; i < distance.length; i++) {
+			for (int j = 0; j < k; j++) {
+				System.out.print(distance[i][j]+" ");
+			}
+			System.out.println();
+		}
         return resMap;
 	}
 		
