@@ -126,7 +126,7 @@ public class Analysis {
 //		f值
 		fCal(TP,FP,FN);
 //		roc auc
-		rocCal(TP,FP,FN,TN);
+//		rocCal(TP,FP,FN,TN);
 	}
 
 	private void precision(int[] tP, int[] fP) {
@@ -159,7 +159,7 @@ public class Analysis {
 		for (int i = 0; i < f.length; i++) {
 			p[i] = (double)(tP[i])/(tP[i]+fP[i]);
 			r[i] = (double)(tP[i])/(tP[i]+fN[i]);
-			f[i] = (double)((Math.pow(beta, 2)*p[i]*r[i]))/(Math.pow(beta, 2)*p[i]+r[i]);
+			f[i] = (double)((1+(Math.pow(beta, 2))*p[i]*r[i]))/(Math.pow(beta, 2)*p[i]+r[i]);
 			System.out.print(i+" "+f[i]+"  ");
 		}
 		System.out.println();
