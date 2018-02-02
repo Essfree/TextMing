@@ -1,4 +1,4 @@
-package jan_13;
+package feb_1;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -10,9 +10,9 @@ import java.util.Vector;
 
 public class KmeansCal {
 
-	public KmeansCal(Map<String, Map<String, Double>> tfidfMap, int k) throws IOException {
+	public KmeansCal(Map<String, Map<String, Double>> tfidfMap, int k,String desDir) throws IOException {
 		Map<String, Integer> fi = Process(tfidfMap,k);
-		String desDir="E:\\MUC\\textmining\\Result\\Result.txt";	
+//		String desDir="E:\\MUC\\1.25\\Result\\Result.txt";	
 			saveToFile(fi,desDir);
 		
 	}
@@ -32,13 +32,14 @@ public class KmeansCal {
 	 * @param tfIdfMap
 	 * @param k
 	 * @return 
+	 * @throws IOException 
 	 */
-	public Map<String, Integer> Process(Map<String, Map<String, Double>> tfIdfMap, int k) {
+	public Map<String, Integer> Process(Map<String, Map<String, Double>> tfIdfMap, int k) throws IOException {
 		String[] sampleName = new String[tfIdfMap.size()];
 		int count = 0;
 		int snLength = tfIdfMap.size();
 		Set<Map.Entry<String, Map<String, Double>>> tfIdfMapSet = tfIdfMap.entrySet();  
-		//文件名称数组        
+		//文件名称数组      ，把所有的文件名存进了samplename数组  
 		for(Iterator<Map.Entry<String, Map<String, Double>>> it = tfIdfMapSet.iterator(); it.hasNext(); ){  
             Map.Entry<String, Map<String, Double>> me = it.next();  
             sampleName[count++] = me.getKey();  
@@ -50,12 +51,13 @@ public class KmeansCal {
 		double [][] distance = new double[snLength][k];
 //		初始化k个聚类
 		int[] assignMeans = new int[snLength];
-		Map<Integer, Vector<Integer>> clusterMember = new TreeMap<Integer,Vector<Integer>>();//记录每个聚类的成员点序号  
+		//记录每个聚类的成员点序号
+		Map<Integer, Vector<Integer>> clusterMember = new TreeMap<Integer,Vector<Integer>>();  
 	    Vector<Integer> mem = new Vector<Integer>();  
 	    int iterNum = 0;//迭代次数
 	    while(true){  
             System.out.println("Iteration No." + (iterNum++) + "----------------------");  
-            //3、计算每个点和每个聚类中心的距离  
+            //计算每个点和每个聚类中心的距离  
             for(int i = 0; i < snLength; i++){  
                 for(int j = 0; j < k; j++){  
                     distance[i][j] = getDistance(tfIdfMap.get(sampleName[i]),meansMap.get(j));  
@@ -66,14 +68,15 @@ public class KmeansCal {
             for(int i = 0; i < snLength; i++){  
                 nearestMeans[i] = findNearestMeans(distance, i);  
             }
-          //5、判断当前所有点属于的聚类序号是否已经全部是其离得最近的聚类
+            //判断当前所有点属于的聚类序号是否已经全部是其离得最近的聚类
             int okCount = 0;  
             for(int i = 0; i <snLength; i++){  
                 if(nearestMeans[i] == assignMeans[i]) okCount++;  
             }  
-            System.out.println("okCount = " + okCount);  
-            if(okCount == snLength || iterNum >= 10) break;  
-            //6、如果前面条件不满足，那么需要重新聚类再进行一次迭代，需要修改每个聚类的成员和每个点属于的聚类信息  
+            System.out.println("okCount = " + okCount); 
+//            不给定迭代次数
+            if(okCount == snLength) break;  
+            //如果前面条件不满足，那么需要重新聚类再进行一次迭代，需要修改每个聚类的成员和每个点属于的聚类信息  
             clusterMember.clear();  
             for(int i = 0; i < snLength; i++){  
                 assignMeans[i] = nearestMeans[i];  
@@ -88,7 +91,7 @@ public class KmeansCal {
                     clusterMember.put(nearestMeans[i], tempMem);  
                 }  
             }  
-            //7、重新计算每个聚类的中心点!  
+            //重新计算每个聚类的中心点!  
             for(int i = 0; i < k; i++){  
                 if(!clusterMember.containsKey(i)){//注意kmeans可能产生空聚类  
                     continue;  
@@ -97,19 +100,56 @@ public class KmeansCal {
                 Map<String, Double> tempMean = new TreeMap<String, Double>();  
                 tempMean.putAll(newMean);  
                 meansMap.put(i, tempMean);  
-            }  
+            }
         }  
         //8、形成聚类结果并且返回  
         Map<String, Integer> resMap = new TreeMap<String, Integer>();  
         for(int i = 0; i < snLength; i++){  
             resMap.put(sampleName[i], assignMeans[i]);  
-        }  
+        } 
+//        ///////////////////////////////////////////////////
+        for (int i = 0; i < distance.length; i++) {
+			for (int j = 0; j < k; j++) {
+				distance[i][j] = 1-distance[i][j];
+			}
+		}
+        double total[] = new double[k];
+        for (int i = 0; i < k; i++) {
+			for (int j = 0; j < distance.length; j++) {
+				total[i] += distance[j][i];
+			}
+		}
+        for (int i = 0; i < distance.length; i++) {
+			for (int j = 0; j < total.length; j++) {
+				distance[i][j] = (double)(distance[i][j])/total[j];
+			}
+		}
+        saveToRoc(resMap,distance,k);
+        ///////////////////////////////////////////////////
         return resMap;
 	}
-		
+//		计算roc曲线
+	private void saveToRoc(Map<String, Integer> resMap, double[][] distance,int k) throws IOException {
+		String desDirs = "E:\\MUC\\1.28\\Result\\Roc.txt";
+		FileWriter resWriter = new FileWriter(desDirs,true);  
+        Set<Map.Entry<String,Integer>> fiSet = resMap.entrySet(); 
+        int i = 0;
+        for(Iterator<Map.Entry<String,Integer>> it = fiSet.iterator(); it.hasNext(); ){  
+            Map.Entry<String, Integer> me = it.next(); 
+            resWriter.append(me.getKey() + " " + me.getValue() +" ");
+			for (int j = 0; j < k; j++) {
+				resWriter.append(distance[i][j]+" "); 
+			}
+			resWriter.append("\n");
+			i++;
+             
+        }  
+        resWriter.flush();  
+        resWriter.close();  
+	}
 	/**计算当前聚类新的中心，采用向量平均 
-     * @param clusterM 该点到所有聚类中心的距离 
-     * @param allTestSampleMap 所有测试样例的<文件名，向量>构成的map 
+     * @param clusterM 所有属于该聚类的点
+     * @param allTestSampleMap 所有测试样例的TfIdfMap 
      * @param testSampleNames 所有测试样例文件名构成的数组 
      * @return Map<String, Double> 新的聚类中心的向量 
      * @throws IOException  
@@ -117,7 +157,6 @@ public class KmeansCal {
     private Map<String, Double> computeNewMean(Vector<Integer> clusterM,  
             Map<String, Map<String, Double>> allTestSampleMap,  
             String[] testSampleNames) {  
-        // TODO Auto-generated method stub  
         double memberNum = (double)clusterM.size();  
         Map<String, Double> newMeanMap = new TreeMap<String,Double>();  
         Map<String, Double> currentMemMap = new TreeMap<String,Double>();  
@@ -192,19 +231,24 @@ public class KmeansCal {
 	 */
 	public Map<Integer, Map<String, Double>> getInitPoint(
 			Map<String, Map<String, Double>> tfIdfMap, int k) {
-		int count = 0, i = 0;  
+		int count = 0,i = 0;  
         Map<Integer, Map<String, Double>> meansMap = new TreeMap<Integer, Map<String, Double>>();//保存K个聚类中心点向量  
         System.out.println("本次聚类的初始点对应的文件为：");  
         Set<Map.Entry<String, Map<String,Double>>> tfIdfSet = tfIdfMap.entrySet();  
         for(Iterator<Map.Entry<String, Map<String,Double>>> it = tfIdfSet.iterator();it.hasNext();){  
             Map.Entry<String, Map<String,Double>> me = it.next();  
 //            取的是第0个和第11个
-            if(count == i * tfIdfSet.size() / k){  
+            int temp = (int)(Math.random()*tfIdfSet.size());
+            count = (int)(Math.random()*tfIdfSet.size());
+            if(count <= temp){  
                 meansMap.put(i, me.getValue());  
                 System.out.println(me.getKey() + " map size is " + me.getValue().size());  
-                i++;  
+                i++;
             }  
-            count++;  
+            if(i == k){  
+            	break;
+            }
+            
         } 
 		return meansMap;
 	}

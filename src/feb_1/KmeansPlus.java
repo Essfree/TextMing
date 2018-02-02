@@ -1,18 +1,20 @@
-package jan_30;
+package feb_1;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
-public class KmeansCal0 {
+public class KmeansPlus {
 
-	public KmeansCal0(Map<String, Map<String, Double>> tfidfMap, int k,String desDir) throws IOException {
+	public KmeansPlus(Map<String, Map<String, Double>> tfidfMap, int k) throws IOException {
 		Map<String, Integer> fi = Process(tfidfMap,k);
-		saveToFile(fi,desDir);
+		String desDir="E:\\MUC\\1.25\\Result\\Result.txt";	
+			saveToFile(fi,desDir);
 		
 	}
 	public void saveToFile(Map<String, Integer> fi, String desDirs) throws IOException {
@@ -42,10 +44,11 @@ public class KmeansCal0 {
             Map.Entry<String, Map<String, Double>> me = it.next();  
             sampleName[count++] = me.getKey();  
         }
-//		均分选择中心点
-		Map<Integer, Map<String, Double>> meansMap = getInitPoint(tfIdfMap, k);
+//		选择中心点
+		Map<Integer, Map<String, Double>> FirstPointMap = getInitPoint(tfIdfMap);
 //		System.out.println(meansMap);
-//		记录点i到聚类中心点j的距离
+//		记录点i到聚类中心点0(j)的距离
+		Map<Integer, Map<String, Double>> meansMap = getAllPoint(tfIdfMap,FirstPointMap,k);
 		double [][] distance = new double[snLength][k];
 //		初始化k个聚类
 		int[] assignMeans = new int[snLength];
@@ -103,17 +106,18 @@ public class KmeansCal0 {
         //8、形成聚类结果并且返回  
         Map<String, Integer> resMap = new TreeMap<String, Integer>();  
         for(int i = 0; i < snLength; i++){  
-            resMap.put(sampleName[i],  assignMeans[i]);  
+            resMap.put(sampleName[i], assignMeans[i]);  
         }  
-        for (int i = 0; i < distance.length; i++) {
-			for (int j = 0; j < k; j++) {
-				System.out.print(distance[i][j]+" ");
-			}
-			System.out.println();
-		}
         return resMap;
 	}
 		
+	private Map<Integer, Map<String, Double>> getAllPoint(
+			Map<String, Map<String, Double>> tfIdfMap,
+			Map<Integer, Map<String, Double>> firstPointMap, int k) {
+		Map<Integer, Map<String, Double>> allMap = new HashMap<Integer, Map<String,Double>>();
+		
+		return null;
+	}
 	/**计算当前聚类新的中心，采用向量平均 
      * @param clusterM 所有属于该聚类的点
      * @param allTestSampleMap 所有测试样例的TfIdfMap 
@@ -161,6 +165,18 @@ public class KmeansCal0 {
         }  
         return j;  
     }
+	
+	public int findFarthestMeans(double[][] distance, int m) {
+		double maxDist = 0;  
+        int j = 0;  
+        for(int i = 0; i < distance[m].length; i++){  
+            if(distance[m][i] > maxDist){  
+                maxDist = distance[m][i];  
+                j = i;  
+            }  
+        }  
+        return j;  
+    }
 
 	public double getDistance(Map<String, Double> map1, Map<String, Double> map2) {
 		return 1-cos(map1,map2);
@@ -181,14 +197,12 @@ public class KmeansCal0 {
 	}
 
 	/**
-	 * 取中心点，是将文件个数/k，均匀分开取的
-	 * 得到中心点map k个，
+	 * 随机取第一个中心点，返回Map<0,Map<单词，词向量>>
 	 * @param tfIdfMap Map<文件名, Map<单词,词向量>>
-	 * @param k  k个中心点,存为Map<classNum,Map<单词，词向量>>
 	 * @return
 	 */
 	public Map<Integer, Map<String, Double>> getInitPoint(
-			Map<String, Map<String, Double>> tfIdfMap, int k) {
+			Map<String, Map<String, Double>> tfIdfMap) {
 		int count = 0,i = 0;  
         Map<Integer, Map<String, Double>> meansMap = new TreeMap<Integer, Map<String, Double>>();//保存K个聚类中心点向量  
         System.out.println("本次聚类的初始点对应的文件为：");  
@@ -201,10 +215,6 @@ public class KmeansCal0 {
             if(count <= temp){  
                 meansMap.put(i, me.getValue());  
                 System.out.println(me.getKey() + " map size is " + me.getValue().size());  
-                i++;
-            }  
-            if(i == k){  
-            	break;
             }
             
         } 
