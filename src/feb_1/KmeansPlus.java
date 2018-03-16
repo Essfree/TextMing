@@ -1,8 +1,8 @@
 package feb_1;
 
+import java.awt.print.Printable;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -11,9 +11,9 @@ import java.util.Vector;
 
 public class KmeansPlus {
 
-	public KmeansPlus(Map<String, Map<String, Double>> tfidfMap, int k) throws IOException {
+	public KmeansPlus(Map<String, Map<String, Double>> tfidfMap, int k,String desDir) throws IOException {
 		Map<String, Integer> fi = Process(tfidfMap,k);
-		String desDir="E:\\MUC\\1.25\\Result\\Result.txt";	
+//		String desDir="E:\\MUC\\1.25\\Result\\Result.txt";	
 			saveToFile(fi,desDir);
 		
 	}
@@ -33,8 +33,9 @@ public class KmeansPlus {
 	 * @param tfIdfMap
 	 * @param k
 	 * @return 
+	 * @throws IOException 
 	 */
-	public Map<String, Integer> Process(Map<String, Map<String, Double>> tfIdfMap, int k) {
+	public Map<String, Integer> Process(Map<String, Map<String, Double>> tfIdfMap, int k) throws IOException {
 		String[] sampleName = new String[tfIdfMap.size()];
 		int count = 0;
 		int snLength = tfIdfMap.size();
@@ -44,11 +45,10 @@ public class KmeansPlus {
             Map.Entry<String, Map<String, Double>> me = it.next();  
             sampleName[count++] = me.getKey();  
         }
-//		选择中心点
-		Map<Integer, Map<String, Double>> FirstPointMap = getInitPoint(tfIdfMap);
+//		均分选择中心点
+		Map<Integer, Map<String, Double>> meansMap = getInitPoint(tfIdfMap,sampleName, k);
 //		System.out.println(meansMap);
-//		记录点i到聚类中心点0(j)的距离
-		Map<Integer, Map<String, Double>> meansMap = getAllPoint(tfIdfMap,FirstPointMap,k);
+//		记录点i到聚类中心点j的距离
 		double [][] distance = new double[snLength][k];
 //		初始化k个聚类
 		int[] assignMeans = new int[snLength];
@@ -107,16 +107,46 @@ public class KmeansPlus {
         Map<String, Integer> resMap = new TreeMap<String, Integer>();  
         for(int i = 0; i < snLength; i++){  
             resMap.put(sampleName[i], assignMeans[i]);  
-        }  
+        } 
+//        ///////////////////////////////////////////////////
+        for (int i = 0; i < distance.length; i++) {
+			for (int j = 0; j < k; j++) {
+				distance[i][j] = 1-distance[i][j];
+			}
+		}
+        double total[] = new double[k];
+        for (int i = 0; i < k; i++) {
+			for (int j = 0; j < distance.length; j++) {
+				total[i] += distance[j][i];
+			}
+		}
+        for (int i = 0; i < distance.length; i++) {
+			for (int j = 0; j < total.length; j++) {
+				distance[i][j] = (double)(distance[i][j])/total[j];
+			}
+		}
+        saveToRoc(resMap,distance,k);
+        ///////////////////////////////////////////////////
         return resMap;
 	}
-		
-	private Map<Integer, Map<String, Double>> getAllPoint(
-			Map<String, Map<String, Double>> tfIdfMap,
-			Map<Integer, Map<String, Double>> firstPointMap, int k) {
-		Map<Integer, Map<String, Double>> allMap = new HashMap<Integer, Map<String,Double>>();
-		
-		return null;
+//		计算roc曲线
+	private void saveToRoc(Map<String, Integer> resMap, double[][] distance,int k) throws IOException {
+		String desDirs = "E:\\MUC\\1.28\\Result\\Roc.txt";
+		FileWriter resWriter = new FileWriter(desDirs,true);  
+        Set<Map.Entry<String,Integer>> fiSet = resMap.entrySet(); 
+        int i = 0;
+        for(Iterator<Map.Entry<String,Integer>> it = fiSet.iterator(); it.hasNext(); ){  
+            Map.Entry<String, Integer> me = it.next(); 
+            resWriter.append(me.getKey() + " " + me.getValue() +" ");
+			for (int j = 0; j < k; j++) {
+				resWriter.append(distance[i][j]+" "); 
+			}
+			resWriter.append("\n");
+			i++;
+             
+        }  
+        resWriter.flush();  
+        resWriter.close();  
 	}
 	/**计算当前聚类新的中心，采用向量平均 
      * @param clusterM 所有属于该聚类的点
@@ -165,60 +195,96 @@ public class KmeansPlus {
         }  
         return j;  
     }
-	
-	public int findFarthestMeans(double[][] distance, int m) {
-		double maxDist = 0;  
-        int j = 0;  
-        for(int i = 0; i < distance[m].length; i++){  
-            if(distance[m][i] > maxDist){  
-                maxDist = distance[m][i];  
-                j = i;  
-            }  
-        }  
-        return j;  
-    }
 
 	public double getDistance(Map<String, Double> map1, Map<String, Double> map2) {
 		return 1-cos(map1,map2);
 	}
 
 	public double cos(Map<String, Double> map1, Map<String, Double> map2) {
-		double mul = 0;//, testAbs = 0, trainAbs = 0;  
+		double mul = 0;
+		double testAbs = 0, trainAbs = 0;  
         Set<Map.Entry<String, Double>> testWordTFMapSet = map1.entrySet();  
         for(Iterator<Map.Entry<String, Double>> it = testWordTFMapSet.iterator(); it.hasNext();){  
             Map.Entry<String, Double> me = it.next();  
             if(map2.containsKey(me.getKey())){  
                 mul += me.getValue()*map2.get(me.getKey());  
             }  
-              
+            testAbs += me.getValue() * me.getValue();  
         }  
-
-        return mul ;
+        testAbs = Math.sqrt(testAbs);  
+        
+        Set<Map.Entry<String, Double>> trainWordTFMapSet = map2.entrySet(); 
+        for(Iterator<Map.Entry<String, Double>> it = trainWordTFMapSet.iterator(); it.hasNext();){ 
+            Map.Entry<String, Double> me = it.next(); 
+            trainAbs += me.getValue()*me.getValue(); 
+        } 
+        trainAbs = Math.sqrt(trainAbs);
+        double cos = (double)(mul)/(testAbs*trainAbs);
+        return cos ;
 	}
 
 	/**
-	 * 随机取第一个中心点，返回Map<0,Map<单词，词向量>>
+	 * 取中心点，是将文件个数/k，均匀分开取的
+	 * 得到中心点map k个，
 	 * @param tfIdfMap Map<文件名, Map<单词,词向量>>
+	 * @param sampleName 
+	 * @param k  k个中心点,存为Map<classNum,Map<单词，词向量>>
 	 * @return
 	 */
 	public Map<Integer, Map<String, Double>> getInitPoint(
-			Map<String, Map<String, Double>> tfIdfMap) {
-		int count = 0,i = 0;  
-        Map<Integer, Map<String, Double>> meansMap = new TreeMap<Integer, Map<String, Double>>();//保存K个聚类中心点向量  
+			Map<String, Map<String, Double>> tfIdfMap, String[] sampleName, int k) {
+		int count = 0,i = 0,l=0;
+		
+		int snLength = sampleName.length;
+		Map<Integer, Map<String, Double>> meansMap = new TreeMap<Integer, Map<String, Double>>();//保存K个聚类中心点向量  
         System.out.println("本次聚类的初始点对应的文件为：");  
         Set<Map.Entry<String, Map<String,Double>>> tfIdfSet = tfIdfMap.entrySet();  
         for(Iterator<Map.Entry<String, Map<String,Double>>> it = tfIdfSet.iterator();it.hasNext();){  
-            Map.Entry<String, Map<String,Double>> me = it.next();  
-//            取的是第0个和第11个
-            int temp = (int)(Math.random()*tfIdfSet.size());
-            count = (int)(Math.random()*tfIdfSet.size());
-            if(count <= temp){  
-                meansMap.put(i, me.getValue());  
-                System.out.println(me.getKey() + " map size is " + me.getValue().size());  
+            Map.Entry<String, Map<String,Double>> me = it.next();
+//            取的是第0个和第11个  
+            if(i == 0){
+            	int q = (int)(Math.random()*1500);
+            	for(int t = 0;t<q;t++){
+            		me = it.next();
+            	}
+                meansMap.put(i, me.getValue()); 
+                System.out.println(i);
+                i++;
+                System.out.println(me.getKey() + " map size is " + me.getValue().size()); 
             }
-            
-        } 
-		return meansMap;
+            it = tfIdfSet.iterator();
+            int j = getPoint(snLength,i,tfIdfMap,sampleName,meansMap);
+            while(l!=j){
+            	me = it.next();
+            	l++;
+            }
+        	meansMap.put(i,me.getValue());
+        	l = 0;
+        	System.out.println(i);
+        	i++;
+        	System.out.println(me.getKey() + " map size is " + me.getValue().size()); 
+        	it = tfIdfSet.iterator();
+        	if(i==k){
+        		break;
+        	}
+        }
+        return meansMap;
+    }
+
+	public int getPoint(int snLength, int i, Map<String, Map<String, Double>> tfIdfMap, String[] sampleName, Map<Integer, Map<String, Double>> meansMap){
+		double distance[][] = new double[snLength][i];
+        int temp = 0;
+        double max = 0;
+        for(int j = 0; j < i; j++){
+			for(int m = 0; m < snLength; m++){  
+                distance[m][j] = getDistance(tfIdfMap.get(sampleName[m]),meansMap.get(j)); 
+                if(distance[m][j]>max){
+                	max = distance[i][j];
+                	temp = m;
+                }  
+            }
+        }
+		return temp;
 	}
 
 }

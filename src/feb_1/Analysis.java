@@ -42,7 +42,7 @@ public class Analysis {
 			cal[j][0] = count;
 			count =  0;
 			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("carbon")&&infoIds.get(i).getValue()==j){
+				if(infoIds.get(i).getKey().contains("database")&&infoIds.get(i).getValue()==j){
 					count++;
 				}
 			}
@@ -50,7 +50,7 @@ public class Analysis {
 
 			count =  0;
 			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("History")&&infoIds.get(i).getValue()==j){
+				if(infoIds.get(i).getKey().contains("machinelearning")&&infoIds.get(i).getValue()==j){
 					count++;
 				}
 			}

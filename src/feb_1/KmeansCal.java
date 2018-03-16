@@ -237,7 +237,7 @@ public class KmeansCal {
         Set<Map.Entry<String, Map<String,Double>>> tfIdfSet = tfIdfMap.entrySet();  
         for(Iterator<Map.Entry<String, Map<String,Double>>> it = tfIdfSet.iterator();it.hasNext();){  
             Map.Entry<String, Map<String,Double>> me = it.next();  
-//            取的是第0个和第11个
+//            随机
             int temp = (int)(Math.random()*tfIdfSet.size());
             count = (int)(Math.random()*tfIdfSet.size());
             if(count <= temp){  

@@ -13,7 +13,7 @@ public class KmeansPlus {
 
 	public KmeansPlus(Map<String, Map<String, Double>> tfidfMap, int k) throws IOException {
 		Map<String, Integer> fi = Process(tfidfMap,k);
-		String desDir="E:\\MUC\\1.25\\Result\\Result.txt";	
+		String desDir="E:\\MUC\\1.30\\Result\\Result.txt";	
 			saveToFile(fi,desDir);
 		
 	}
