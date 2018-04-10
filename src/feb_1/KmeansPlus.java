@@ -1,6 +1,6 @@
 package feb_1;
 
-import java.awt.print.Printable;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
+
 
 public class KmeansPlus {
 
@@ -241,7 +242,7 @@ public class KmeansPlus {
         Set<Map.Entry<String, Map<String,Double>>> tfIdfSet = tfIdfMap.entrySet();  
         for(Iterator<Map.Entry<String, Map<String,Double>>> it = tfIdfSet.iterator();it.hasNext();){  
             Map.Entry<String, Map<String,Double>> me = it.next();
-//            取的是第0个和第11个  
+//            随机取第一个点  
             if(i == 0){
             	int q = (int)(Math.random()*1500);
             	for(int t = 0;t<q;t++){
@@ -253,7 +254,19 @@ public class KmeansPlus {
                 System.out.println(me.getKey() + " map size is " + me.getValue().size()); 
             }
             it = tfIdfSet.iterator();
-            int j = getPoint(snLength,i,tfIdfMap,sampleName,meansMap);
+            
+//          --------------------------------------------
+            Map<Integer, Map<String, Double>> tempMap = new TreeMap<Integer, Map<String, Double>>();
+            tempMap.putAll(meansMap);
+            int q = (int)(Math.random()*1500);
+        	for(int t = 0;t<q;t++){
+        		me = it.next();
+        	}
+        	tempMap.put(meansMap.size(),me.getValue());
+        	it = tfIdfSet.iterator();
+//          ---------------------------------------------
+            
+            int j = getPoint(snLength,tfIdfMap,sampleName,tempMap);
             while(l!=j){
             	me = it.next();
             	l++;
@@ -271,19 +284,49 @@ public class KmeansPlus {
         return meansMap;
     }
 
-	public int getPoint(int snLength, int i, Map<String, Map<String, Double>> tfIdfMap, String[] sampleName, Map<Integer, Map<String, Double>> meansMap){
+	/**
+	 * 
+	 * 
+	 * @param snLength  数据集的个数
+	 * @param i 现有的聚类点数+1
+	 * @param tfIdfMap
+	 * @param sampleName  文件名
+	 * @param tempMap  <簇k,<单词，词向量>>
+	 * @return
+	 */
+	public int getPoint(int snLength, Map<String, Map<String, Double>> tfIdfMap, String[] sampleName, Map<Integer, Map<String, Double>> tempMap){
+//		距离distance[自己][聚类点]
+		int i = tempMap.size();
 		double distance[][] = new double[snLength][i];
         int temp = 0;
-        double max = 0;
-        for(int j = 0; j < i; j++){
-			for(int m = 0; m < snLength; m++){  
-                distance[m][j] = getDistance(tfIdfMap.get(sampleName[m]),meansMap.get(j)); 
-                if(distance[m][j]>max){
-                	max = distance[i][j];
-                	temp = m;
+        
+        
+        double d[] = new double [snLength];
+        double sum = 0;
+        
+		for(int m = 0; m < snLength; m++){
+			double min = 10000.000;
+			for(int j = 0; j < i; j++){
+                distance[m][j] = getDistance(tfIdfMap.get(sampleName[m]),tempMap.get(j)); 
+                if(distance[m][j]<min){
+                	min = distance[m][j];
                 }  
-            }
+			}
+			d[m] = min;
+			sum = sum+d[m];
         }
+		double rand = Math.random()*sum;
+		System.out.println("rand = "+rand);
+		System.out.println("sum = "+sum);
+        for (int j = 0; j < d.length; j++) {
+			rand -= d[j];
+			if (rand <=0) {
+				temp = j;
+				break;
+			}
+		}
+        System.out.println("----------------"+temp);
+//        ----------------------
 		return temp;
 	}
 

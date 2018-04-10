@@ -39,8 +39,8 @@ public class Main {
 		HashMap<String, Double> tfidfb = t.tf_idf(tfb, idfb);
 		System.out.println("tfidfb "+tfidfb);
 		//计算cos
-		CosineSimilarAlgorithmt cs = new CosineSimilarAlgorithmt();
-		cs.cosine(tfidfa, tfidfb);
+//		CosineSimilarAlgorithmt cs = new CosineSimilarAlgorithmt();
+//		cs.cosine(tfidfa, tfidfb);
 	}
 
 }
