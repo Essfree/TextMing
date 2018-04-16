@@ -8,12 +8,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ujmp.core.Matrix;
+
 
 public class Analysis {
+	public static int total = 0;
 	public void analyData(String analy,int k) throws IOException {
 		Map<String, Integer> newMap = new HashMap<String, Integer>();
 		File filein = new File(analy);
@@ -28,57 +32,73 @@ public class Analysis {
 		}
 		List<Map.Entry<String, Integer>> infoIds = new ArrayList<Map.Entry<String, Integer>>(newMap.entrySet());
 		int cal[][] = new int[k][k];
-		
+//		得到矩阵
 		for(int j=0;j<k;j++){
 			int count = 0;
 			for(int i = 0;i<newMap.size();i++){
 				if(infoIds.get(i).getKey().contains("Carbon")&&infoIds.get(i).getValue()==j){
-					count++;
+//					count++;
+					cal[j][0] += 1;
+				}else if (infoIds.get(i).getKey().contains("Ceramic")&&infoIds.get(i).getValue()==j) {
+					cal[j][1] += 1;
+				}else if(infoIds.get(i).getKey().contains("metallic")&&infoIds.get(i).getValue()==j){
+					cal[j][2] += 1;
+				}else if(infoIds.get(i).getKey().contains("Organic Inorganic")&&infoIds.get(i).getValue()==j){
+					cal[j][3] += 1;
+				}else if(infoIds.get(i).getKey().contains("Polymer")&&infoIds.get(i).getValue()==j){
+					cal[j][4] += 1;
+				}else if(infoIds.get(i).getKey().contains("Semi-Metallic")&&infoIds.get(i).getValue()==j){
+					cal[j][5] += 1;
 				}
 			}
-			cal[j][0] = count;
-			count =  0;
-			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("Ceramic")&&infoIds.get(i).getValue()==j){
-					count++;
-				}
-			}
-			cal[j][1] = count;
-
-			count =  0;
-			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("metallic")&&infoIds.get(i).getValue()==j){
-					count++;
-				}
-			}
-			cal[j][2] = count;
-			
-			count =  0;
-			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("Organic Inorganic")&&infoIds.get(i).getValue()==j){
-					count++;
-				}
-			}
-			cal[j][3] = count;
-			
-			count =  0;
-			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("Polymer")&&infoIds.get(i).getValue()==j){
-					count++;
-				}
-			}
-			cal[j][4] = count;
-			
-			count =  0;
-			for(int i = 0;i<newMap.size();i++){
-				if(infoIds.get(i).getKey().contains("Semi-Metallic")&&infoIds.get(i).getValue()==j){
-					count++;
-				}
-			}
-			cal[j][5] = count;
 		}
+//			cal[j][0] = count;
+//			total += count;
+//			count =  0;
+//			for(int i = 0;i<newMap.size();i++){
+//				if(infoIds.get(i).getKey().contains("Ceramic")&&infoIds.get(i).getValue()==j){
+//					count++;
+//				}
+//			}
+//			cal[j][1] = count;
+//
+//			count =  0;
+//			for(int i = 0;i<newMap.size();i++){
+//				if(infoIds.get(i).getKey().contains("metallic")&&infoIds.get(i).getValue()==j){
+//					count++;
+//				}
+//			}
+//			cal[j][2] = count;
+//			
+//			count =  0;
+//			for(int i = 0;i<newMap.size();i++){
+//				if(infoIds.get(i).getKey().contains("Organic Inorganic")&&infoIds.get(i).getValue()==j){
+//					count++;
+//				}
+//			}
+//			cal[j][3] = count;
+			
+//			count =  0;
+//			for(int i = 0;i<newMap.size();i++){
+//				if(infoIds.get(i).getKey().contains("Polymer")&&infoIds.get(i).getValue()==j){
+//					count++;
+//				}
+//			}
+//			cal[j][4] = count;
+//			
+//			count =  0;
+//			for(int i = 0;i<newMap.size();i++){
+//				if(infoIds.get(i).getKey().contains("Semi-Metallic")&&infoIds.get(i).getValue()==j){
+//					count++;
+//				}
+//			}
+//			cal[j][5] = count;
+//		}
+//		计算cal的总数
+		
 		printData(cal);
-
+		
+//		计算比例得到cal中每个值占总的概率（按行算）
 		double[][] t = new double[cal.length][cal.length];
 		for (int i = 0; i < cal.length; i++) {
 			int m = 0;
@@ -91,77 +111,128 @@ public class Analysis {
 //				t[i][j] = m;
 			}
 		}
-//		按纯度算
-		calByPurity(t);
-//		按熵算
+		
+//		按单个纯度算，得到每个元素的纯度
+//		calByPurity(t);
+//		按熵算，得到每个簇的熵
 		calByEntropy(t);
-//		算TP\TN\FN\FP
-		calByMethods(cal,k);
 		
-		
-		
-		
-	}
-
-	private void calByMethods(int[][] cal,int k) {
-		System.out.println("TP  TN  FN  FP");
-		int TP[] = new int[k];
-		int FP[] = new int[k];
-		int FN[] = new int[k];
-		int TN[] = new int[k];
-		int all = 0;
+//		用匈牙利算法(指派问题)得到总的纯度和总的熵
+		int hg[] = Hg(cal);
+//		for (int i = 0; i < hg.length; i++) {
+//			System.out.println(cal[i][hg[i]]);
+//		}
+//		计算每行的纯度
+		double pur[] = new double[k];
 		for (int i = 0; i < cal.length; i++) {
-			int temp = 0;
-			int max = 0;
-			int m = 0;
-			int n = 0;
+			int count = 0;
 			for (int j = 0; j < cal.length; j++) {
-				if(cal[i][j]>temp){
-					temp = cal[i][j];
-					max = j;
+				count+=cal[i][j];
+			}
+			pur[i] = (double)cal[i][hg[i]]/count;
+		}
+		
+//		计算每列的精确度
+		double pre[] = new double[k];
+		for (int j = 0; j < pre.length; j++) {
+			int count = 0;
+			for (int i = 0; i < pre.length; i++) {
+				count+=cal[i][j];
+			}
+			for (int i = 0; i < hg.length; i++) {
+				if(j == hg[i]){
+					pre[i] = (double)cal[i][hg[i]]/count;
+					break;
 				}
-				m = m+cal[i][j];
 			}
-			for (int j = 0; j < cal.length; j++) {
-				n += cal[j][max];
-			}
-			all = all+m;
-//			System.out.println("m = " + m);
-//			System.out.println("n = "+n);
-//			System.out.println("max = "+max);
-			TP[max] = temp;
-//			System.out.println("tp = "+TP[max]);
-			FP[max] = m - TP[max];
-			FN[max] = n - TP[max];
 		}
-		for (int i = 0; i < cal.length; i++) {
-//			System.out.println("tp["+i+"] = "+TP[i]);
-			if(TP[i]==0){
-				System.err.println("聚类出错");
-				return;
-			}
-			TN[i] = all-TP[i]-FP[i]-FN[i];
-			System.out.println(TP[i]+" "+FP[i]+" "+FN[i]+" "+TN[i]);
+//		计算总纯度和总精确度
+		double purcnt = 0; double precnt = 0;
+		for (int i = 0; i < pur.length; i++) {
+			purcnt += pur[i]/k;
+			precnt += pre[i]/k;
 		}
-//		召回率
-		recall(TP,FN);
-//		精确度
-		precision(TP,FP);
-//		f值
-		fCal(TP,FP,FN);
-//		roc auc
-//		rocCal(TP,FP,FN,TN);
-	}
-
-	private void precision(int[] tP, int[] fP) {
-		System.out.println("计算精确度");
-		for (int i = 0; i < fP.length; i++) {
-			double p = (double)tP[i]/(tP[i]+fP[i]);
-			System.out.print(p+" ");
-		}
-		System.out.println();
+		System.out.println("纯度为："+purcnt);
+		System.out.println("精确度为："+precnt);
+		
+//		计算F值
+		double f_measure = FMS(purcnt,precnt);
+		System.out.println("F值为："+f_measure);
+//		//////////////////////////
+//		算TP\TN\FN\FP
+//		calByMethods(cal,k);
+		
+		
+		
 		
 	}
+
+private double FMS(double r, double p) {
+		double beta = 1;
+		double f = 0;
+		f = (double)((beta*beta+1)*p*r)/(beta*beta*p+r);
+		return f;
+	}
+
+//	private void calByMethods(int[][] cal,int k) {
+//		System.out.println("TP  TN  FN  FP");
+//		int TP[] = new int[k];
+//		int FP[] = new int[k];
+//		int FN[] = new int[k];
+//		int TN[] = new int[k];
+//		int all = 0;
+//		for (int i = 0; i < cal.length; i++) {
+//			int temp = 0;
+//			int max = 0;
+//			int m = 0;
+//			int n = 0;
+//			for (int j = 0; j < cal.length; j++) {
+//				if(cal[i][j]>temp){
+//					temp = cal[i][j];
+//					max = j;
+//				}
+//				m = m+cal[i][j];
+//			}
+//			for (int j = 0; j < cal.length; j++) {
+//				n += cal[j][max];
+//			}
+//			all = all+m;
+////			System.out.println("m = " + m);
+////			System.out.println("n = "+n);
+////			System.out.println("max = "+max);
+//			TP[max] = temp;
+////			System.out.println("tp = "+TP[max]);
+//			FP[max] = m - TP[max];
+//			FN[max] = n - TP[max];
+//		}
+//		for (int i = 0; i < cal.length; i++) {
+////			System.out.println("tp["+i+"] = "+TP[i]);
+//			if(TP[i]==0){
+//				System.err.println("聚类出错");
+//				return;
+//			}
+//			TN[i] = all-TP[i]-FP[i]-FN[i];
+//			System.out.println(TP[i]+" "+FP[i]+" "+FN[i]+" "+TN[i]);
+//		}
+////		召回率
+//		recall(TP,FN);
+////		精确度
+//		precision(TP,FP);
+////		f值
+//		fCal(TP,FP,FN);
+////		roc auc
+////		rocCal(TP,FP,FN,TN);
+//	}
+
+//	private void precision(int[] tP, int[] fP) {
+//		System.out.println("计算精确度");
+//		for (int i = 0; i < fP.length; i++) {
+//			double p = (double)tP[i]/(tP[i]+fP[i]);
+//			System.out.print(p+" ");
+//		}
+//		System.out.println();
+//		
+//	}
 
 //	private void rocCal(int[] tP, int[] fP, int[] fN,int[] tN) {
 //		double TPR[] = new double[tP.length];
@@ -174,29 +245,50 @@ public class Analysis {
 //		
 //	}
 
-	private void fCal(int[] tP, int[] fP, int[] fN) {
-		System.out.println("计算f值");
-		double p[] = new double[tP.length];
-		double r[] = new double[tP.length];
-		double f[] = new double[tP.length];
-		double beta = 1;
-		for (int i = 0; i < f.length; i++) {
-			p[i] = (double)(tP[i])/(tP[i]+fP[i]);
-			r[i] = (double)(tP[i])/(tP[i]+fN[i]);
-			f[i] = (double)((1+(Math.pow(beta, 2))*p[i]*r[i]))/(Math.pow(beta, 2)*p[i]+r[i]);
-			System.out.print(i+" "+f[i]+"  ");
-		}
-		System.out.println();
-	}
+//	private void fCal(int[] tP, int[] fP, int[] fN) {
+//		System.out.println("计算f值");
+//		double p[] = new double[tP.length];
+//		double r[] = new double[tP.length];
+//		double f[] = new double[tP.length];
+//		double beta = 1;
+//		for (int i = 0; i < f.length; i++) {
+//			p[i] = (double)(tP[i])/(tP[i]+fP[i]);
+//			r[i] = (double)(tP[i])/(tP[i]+fN[i]);
+//			f[i] = (double)((1+(Math.pow(beta, 2))*p[i]*r[i]))/(Math.pow(beta, 2)*p[i]+r[i]);
+//			System.out.print(i+" "+f[i]+"  ");
+//		}
+//		System.out.println();
+//	}
+//
+//	private void recall(int[] tP, int[] fN) {
+////		召回率
+//		System.out.println("计算召回率");
+//		for (int i = 0; i < fN.length; i++) {
+//			double recall  = (double)(tP[i])/(tP[i]+fN[i]);
+//			System.out.print(i+" "+recall+"  ");	
+//		}
+//		System.out.println();
+//		
+//	}
 
-	private void recall(int[] tP, int[] fN) {
-//		召回率
-		System.out.println("计算召回率");
-		for (int i = 0; i < fN.length; i++) {
-			double recall  = (double)(tP[i])/(tP[i]+fN[i]);
-			System.out.print(i+" "+recall+"  ");	
+	private int[] Hg(int[][] cal) {
+//	     初始化了一个m.length*m[0].length的矩阵(4*4)
+		Matrix mMatrix = Matrix.Factory.zeros(cal.length, cal[0].length);
+//   矩阵赋值
+		for (int i = 0; i < cal.length; i++) {
+			for (int j = 0; j < cal[i].length; j++) {
+				mMatrix.setAsInt(cal[i][j], i, j);
+			}
 		}
-		System.out.println();
+   
+		Hungary h = new Hungary(mMatrix);
+   
+		h.findMaxMatch();
+   
+//		System.out.println(h.mapMatrix);
+		int m[] =  ((h.mapIndices));
+		return m;
+//		System.out.println(Arrays.toString(h.mapIndices));
 		
 	}
 
@@ -205,22 +297,36 @@ public class Analysis {
 		double[] e = new double[t.length];        
 		for(int i=0;i<t.length;i++){
 			for (int j = 0; j < t.length; j++) {
-				e[i] =e[i]+ (-(t[i][j]*((double)Math.log(t[i][j])/Math.log(2))));
+				if(t[i][j] == 0){
+					e[i] = e[i];
+				}else{
+					e[i] =e[i]+ (-(t[i][j]*((double)Math.log(t[i][j])/Math.log(2))));
+				}
 			}
 			System.out.println(e[i]);
 		}
 		System.out.println();
 	}
 
-	private void calByPurity(double[][] t) {
-		System.out.println("按纯度来算");
-		for (int i = 0; i < t.length; i++) {
-			for (int j = 0; j < t.length; j++) {
-				System.out.print(t[i][j]+" ");
-			}
-			System.out.println();
-		}
-	}
+//	private void calByPurity(double[][] t) {
+//		System.out.println("按纯度来算");
+//		
+//		double[] to = new double[t.length];
+//		for (int i = 0; i < t.length; i++) {
+//			double temp = 0;
+//			for (int j = 0; j < t.length; j++) {
+//				if(t[i][j] > temp){
+//					temp = t[i][j];
+//				}
+//				System.out.print(t[i][j]+" ");
+//			}
+//			to[i] = temp;
+//			System.out.println();
+//		}
+//		for (int i = 0; i < to.length; i++) {
+//			System.out.print(to[i]+" ");
+//		}
+//	}
 
 	private void printData(int[][] cal) {
 		for (int i = 0; i < cal.length; i++) {

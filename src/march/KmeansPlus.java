@@ -4,11 +4,17 @@ package march;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
+
 
 
 public class KmeansPlus {
@@ -83,8 +89,12 @@ public class KmeansPlus {
             }  
             System.out.println("okCount = " + okCount); 
 //            不给定迭代次数
-            if(iterNum == 20) break;
-            if(okCount == snLength) break;  
+//            if(iterNum == 20) break;
+            if(okCount == snLength){
+//            	//////////////////////////////////////////////////
+            	System.out.println(sortmap(meansMap));
+            	break;  
+            }
             //如果前面条件不满足，那么需要重新聚类再进行一次迭代，需要修改每个聚类的成员和每个点属于的聚类信息  
             clusterMember.clear();  
             for(int i = 0; i < snLength; i++){  
@@ -97,6 +107,7 @@ public class KmeansPlus {
                     mem.add(i);  
                     Vector<Integer> tempMem = new Vector<Integer>();  
                     tempMem.addAll(mem);  
+//                    System.out.println(tempMem);
                     clusterMember.put(nearestMeans[i], tempMem);  
                 }  
             }  
@@ -106,12 +117,12 @@ public class KmeansPlus {
                     continue;  
                 }  
                 Map<String, Double> newMean = computeNewMean(clusterMember.get(i), tfIdfMap, sampleName);  
-                Map<String, Double> tempMean = new TreeMap<String, Double>();  
+                Map<String, Double> tempMean = new TreeMap<String, Double>();
                 tempMean.putAll(newMean);  
                 meansMap.put(i, tempMean);  
             }
         }  
-        //8、形成聚类结果并且返回  
+        //形成聚类结果并且返回  
         Map<String, Integer> resMap = new TreeMap<String, Integer>();  
         for(int i = 0; i < snLength; i++){  
             resMap.put(sampleName[i], assignMeans[i]);  
@@ -119,6 +130,26 @@ public class KmeansPlus {
         return resMap;
 	}
 
+	private Map<Integer, Map<String, Double>> sortmap(Map<Integer, Map<String, Double>> meansMap) {
+		Map<Integer,Map<String, Double>> finalMap = new TreeMap<Integer,Map<String, Double>>();
+		for (int i = 0; i < meansMap.size(); i++) {
+			Map<String, Double> temp = meansMap.get(i);
+			List<Map.Entry<String, Double>> tempList = new ArrayList<Map.Entry<String,Double>>(temp.entrySet());
+			Collections.sort(tempList, new Comparator<Map.Entry<String, Double>>() {
+				public int compare(Map.Entry<String, Double> obj1 , Map.Entry<String, Double> obj2) {
+					Double d1 = obj1.getValue();
+					Double d2 = obj2.getValue();
+					return d2.compareTo(d1);
+				} 
+			});
+			Map<String, Double> test = new HashMap<String, Double>();
+			for (int j = 0; j < 15; j++) {
+				test.put(tempList.get(j).getKey(), tempList.get(j).getValue());				
+			}
+			finalMap.put(i, test);
+		}
+		return finalMap;
+	}
 	/**计算当前聚类新的中心，采用向量平均 
      * @param clusterM 所有属于该聚类的点
      * @param allTestSampleMap 所有测试样例的TfIdfMap 
