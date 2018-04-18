@@ -58,8 +58,8 @@ public class KmeansPlus {
             Map.Entry<String, Map<String, Double>> me = it.next();  
             sampleName[count++] = me.getKey();  
         }
-//		均分选择中心点
-		Map<Integer, Map<String, Double>> meansMap = getInitPoint(tfIdfMap,sampleName, k);
+//		使用kmeans++获取中心点
+		Map<Integer, Map<String, Double>> meansMap = getInitPointKPlus(tfIdfMap,sampleName, k);
 //		System.out.println(meansMap);
 //		记录点i到聚类中心点j的距离
 		double [][] distance = new double[snLength][k];
@@ -111,7 +111,7 @@ public class KmeansPlus {
                     clusterMember.put(nearestMeans[i], tempMem);  
                 }  
             }  
-            //重新计算每个聚类的中心点!  
+            //重新计算每个聚类的中心点! 
             for(int i = 0; i < k; i++){  
                 if(!clusterMember.containsKey(i)){//注意kmeans可能产生空聚类  
                     continue;  
@@ -226,14 +226,14 @@ public class KmeansPlus {
 	}
 
 	/**
-	 * 取中心点，是将文件个数/k，均匀分开取的
+	 * 取中心点，Kmeans++
 	 * 得到中心点map k个，
 	 * @param tfIdfMap Map<文件名, Map<单词,词向量>>
 	 * @param sampleName 
 	 * @param k  k个中心点,存为Map<classNum,Map<单词，词向量>>
 	 * @return
 	 */
-	public Map<Integer, Map<String, Double>> getInitPoint(
+	public Map<Integer, Map<String, Double>> getInitPointKPlus(
 			Map<String, Map<String, Double>> tfIdfMap, String[] sampleName, int k) {
 		int count = 0,i = 0,l=0;
 		
@@ -256,18 +256,7 @@ public class KmeansPlus {
             }
             it = tfIdfSet.iterator();
             
-//          --------------------------------------------
-//            Map<Integer, Map<String, Double>> tempMap = new TreeMap<Integer, Map<String, Double>>();
-//            tempMap.putAll(meansMap);
-//            int q = (int)(Math.random()*1500);
-//        	for(int t = 0;t<q;t++){
-//        		me = it.next();
-//        	}
-//        	tempMap.put(meansMap.size(),me.getValue());
-//        	it = tfIdfSet.iterator();
-//          ---------------------------------------------
-            
-            int j = getPoint(snLength,tfIdfMap,sampleName,meansMap);
+            int j = getPointByKplus(snLength,tfIdfMap,sampleName,meansMap);
             while(l!=j){
             	me = it.next();
             	l++;
@@ -295,7 +284,7 @@ public class KmeansPlus {
 	 * @param tempMap  <簇k,<单词，词向量>>
 	 * @return
 	 */
-	public int getPoint(int snLength, Map<String, Map<String, Double>> tfIdfMap, String[] sampleName, Map<Integer, Map<String, Double>> tempMap){
+	public int getPointByKplus(int snLength, Map<String, Map<String, Double>> tfIdfMap, String[] sampleName, Map<Integer, Map<String, Double>> tempMap){
 //		距离distance[自己][聚类点]
 		int i = tempMap.size();
 		double distance[][] = new double[snLength][i];
