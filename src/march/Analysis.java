@@ -18,7 +18,8 @@ import org.ujmp.core.Matrix;
 
 public class Analysis {
 	public static int total = 0;
-	public void analyData(String analy,int k) throws IOException {
+	public void analyData(String analy,int k, String result) throws IOException {
+		
 		Map<String, Integer> newMap = new HashMap<String, Integer>();
 		File filein = new File(analy);
 		InputStreamReader in = new InputStreamReader(new FileInputStream(filein));
@@ -52,51 +53,20 @@ public class Analysis {
 				}
 			}
 		}
-//			cal[j][0] = count;
-//			total += count;
-//			count =  0;
-//			for(int i = 0;i<newMap.size();i++){
-//				if(infoIds.get(i).getKey().contains("Ceramic")&&infoIds.get(i).getValue()==j){
-//					count++;
-//				}
-//			}
-//			cal[j][1] = count;
-//
-//			count =  0;
-//			for(int i = 0;i<newMap.size();i++){
-//				if(infoIds.get(i).getKey().contains("metallic")&&infoIds.get(i).getValue()==j){
-//					count++;
-//				}
-//			}
-//			cal[j][2] = count;
-//			
-//			count =  0;
-//			for(int i = 0;i<newMap.size();i++){
-//				if(infoIds.get(i).getKey().contains("Organic Inorganic")&&infoIds.get(i).getValue()==j){
-//					count++;
-//				}
-//			}
-//			cal[j][3] = count;
-			
-//			count =  0;
-//			for(int i = 0;i<newMap.size();i++){
-//				if(infoIds.get(i).getKey().contains("Polymer")&&infoIds.get(i).getValue()==j){
-//					count++;
-//				}
-//			}
-//			cal[j][4] = count;
-//			
-//			count =  0;
-//			for(int i = 0;i<newMap.size();i++){
-//				if(infoIds.get(i).getKey().contains("Semi-Metallic")&&infoIds.get(i).getValue()==j){
-//					count++;
-//				}
-//			}
-//			cal[j][5] = count;
-//		}
+
 //		计算cal的总数
 		
-		printData(cal);
+		
+		File file  = new File(result);
+		FileWriter resWriter = new FileWriter(result,true);  
+//		printData(cal);
+		
+		for (int i = 0; i < cal.length; i++) {
+			for (int j = 0; j < cal.length; j++) {
+				resWriter.append(cal[i][j]+" ");
+			}
+			resWriter.append('\n');
+		}
 		
 //		计算比例得到cal中每个值占总的概率（按行算）
 		double[][] t = new double[cal.length][cal.length];
@@ -112,52 +82,117 @@ public class Analysis {
 			}
 		}
 		
+//		计算比例得到cal中每个值占总的概率（按列算）
+		double[][] col = new double[cal.length][cal.length];
+		for (int j = 0; j < cal.length; j++) {
+			int m = 0;
+			for (int i = 0; i < cal.length; i++) {
+				m = m+cal[i][j];
+			}
+			
+			for (int i = 0; i < cal.length; i++) {
+				col[i][j] = (double)cal[i][j]/m;
+//				t[i][j] = m;
+			}
+		}
+		
 //		按单个纯度算，得到每个元素的纯度
 //		calByPurity(t);
 //		按熵算，得到每个簇的熵
-		calByEntropy(t);
+//		calByEntropy(t);
 		
-//		用匈牙利算法(指派问题)得到总的纯度和总的熵
-		int hg[] = Hg(cal);
-//		for (int i = 0; i < hg.length; i++) {
-//			System.out.println(cal[i][hg[i]]);
-//		}
-//		计算每行的纯度
-		double pur[] = new double[k];
-		for (int i = 0; i < cal.length; i++) {
-			int count = 0;
-			for (int j = 0; j < cal.length; j++) {
-				count+=cal[i][j];
-			}
-			pur[i] = (double)cal[i][hg[i]]/count;
-		}
-		
-//		计算每列的精确度
-		double pre[] = new double[k];
-		for (int j = 0; j < pre.length; j++) {
-			int count = 0;
-			for (int i = 0; i < pre.length; i++) {
-				count+=cal[i][j];
-			}
-			for (int i = 0; i < hg.length; i++) {
-				if(j == hg[i]){
-					pre[i] = (double)cal[i][hg[i]]/count;
-					break;
+		resWriter.append("按熵来算"+'\n');
+		double[] e = new double[t.length];        
+		for(int i=0;i<t.length;i++){
+			for (int j = 0; j < t.length; j++) {
+				if(t[i][j] == 0){
+					e[i] = e[i];
+				}else{
+					e[i] =e[i]+ (-(t[i][j]*((double)Math.log(t[i][j])/Math.log(2))));
 				}
 			}
+			resWriter.append(e[i]+" "+'\n');
 		}
+//		按纯度
+//		int place[] = new int[k];
+		double pur[] =  new double[t.length];
+		double pre[] =  new double[col.length];
+		for (int i = 0; i < t.length; i++) {
+			double max = 0;
+			int place = 0;
+			for (int j = 0; j < t.length; j++) {
+				if(max<t[i][j]){
+					max = t[i][j];
+					place = j;
+				}
+
+			}
+			pur[i] = max;
+			pre[i] = col[i][place];
+			resWriter.append(max+" "+'\n');
+		}
+//		按精确度
+//		double pre[] =  new double[col.length];
+		for (int j = 0; j < col.length; j++) {
+			resWriter.append(pre[j]+" "+'\n');
+		}
+		
+////		用匈牙利算法(指派问题)得到总的纯度和总的熵
+//		int hg[] = Hg(cal);
+//		for (int i = 0; i < hg.length; i++) {
+//			System.out.println(hg[i]);
+//		}
+////		for (int i = 0; i < hg.length; i++) {
+////			System.out.println(cal[i][hg[i]]);
+////		}
+////		计算每行的纯度
+//		resWriter.append("纯度分别为"+'\n');		
+//		double pur[] = new double[k];
+//		for (int i = 0; i < cal.length; i++) {
+//			int count = 0;
+//			for (int j = 0; j < cal.length; j++) {
+//				count+=cal[i][j];
+//			}
+//			pur[i] = (double)cal[i][hg[i]]/count;
+//			resWriter.append(pur[i]+" "+'\n');
+//		}
+////		resWriter.append('\n');
+////		System.out.println();
+////		计算每列的精确度
+//		resWriter.append("精确度分别为："+'\n');
+//		double pre[] = new double[k];
+//		for (int j = 0; j < pre.length; j++) {
+//			int count = 0;
+//			for (int i = 0; i < pre.length; i++) {
+//				count+=cal[i][j];
+//			}
+//			for (int i = 0; i < hg.length; i++) {
+//				if(j == hg[i]){
+//					pre[i] = (double)cal[i][hg[i]]/count;
+//					resWriter.append(pre[i]+" "+'\n');
+//					break;
+//				}
+//			}
+//		}
+//		resWriter.append('\n');
+////		System.out.println();
 //		计算总纯度和总精确度
 		double purcnt = 0; double precnt = 0;
+		
 		for (int i = 0; i < pur.length; i++) {
+			
 			purcnt += pur[i]/k;
 			precnt += pre[i]/k;
 		}
-		System.out.println("纯度为："+purcnt);
-		System.out.println("精确度为："+precnt);
+		resWriter.append("总纯度为："+purcnt+'\n');
+		resWriter.append("总精确度为："+precnt+'\n');
 		
 //		计算F值
 		double f_measure = FMS(purcnt,precnt);
-		System.out.println("F值为："+f_measure);
+		resWriter.append("F值为："+f_measure+'\n');
+		resWriter.append('\n');
+		resWriter.flush();
+		resWriter.close();
 //		//////////////////////////
 //		算TP\TN\FN\FP
 //		calByMethods(cal,k);
@@ -287,26 +322,37 @@ private double FMS(double r, double p) {
    
 //		System.out.println(h.mapMatrix);
 		int m[] =  ((h.mapIndices));
+		int tto = 15;
+		for (int i = 0; i < m.length; i++) {
+			if(m[i]!=-1){
+				tto = tto - m[i];
+			}
+		}
+		for (int i = 0; i < m.length; i++) {
+			if(m[i] == -1){
+				m[i] = tto;
+			}
+		}
 		return m;
 //		System.out.println(Arrays.toString(h.mapIndices));
 		
 	}
 
-	private void calByEntropy(double[][] t) {
-		System.out.println("按熵来算");
-		double[] e = new double[t.length];        
-		for(int i=0;i<t.length;i++){
-			for (int j = 0; j < t.length; j++) {
-				if(t[i][j] == 0){
-					e[i] = e[i];
-				}else{
-					e[i] =e[i]+ (-(t[i][j]*((double)Math.log(t[i][j])/Math.log(2))));
-				}
-			}
-			System.out.println(e[i]);
-		}
-		System.out.println();
-	}
+//	private void calByEntropy(double[][] t) {
+//		System.out.println("按熵来算");
+//		double[] e = new double[t.length];        
+//		for(int i=0;i<t.length;i++){
+//			for (int j = 0; j < t.length; j++) {
+//				if(t[i][j] == 0){
+//					e[i] = e[i];
+//				}else{
+//					e[i] =e[i]+ (-(t[i][j]*((double)Math.log(t[i][j])/Math.log(2))));
+//				}
+//			}
+//			System.out.println(e[i]);
+//		}
+//		System.out.println();
+//	}
 
 //	private void calByPurity(double[][] t) {
 //		System.out.println("按纯度来算");
@@ -328,14 +374,14 @@ private double FMS(double r, double p) {
 //		}
 //	}
 
-	private void printData(int[][] cal) {
-		for (int i = 0; i < cal.length; i++) {
-			for (int j = 0; j < cal.length; j++) {
-				System.out.print(cal[i][j]+" ");
-			}
-			System.out.println();
-		}
-	}
+//	private void printData(int[][] cal) {
+//		for (int i = 0; i < cal.length; i++) {
+//			for (int j = 0; j < cal.length; j++) {
+//				System.out.print(cal[i][j]+" ");
+//			}
+//			System.out.println();
+//		}
+//	}
 
 //	public void roc(String rocDir, int k) throws IOException {
 //		int len = calcu(rocDir);

@@ -81,7 +81,6 @@ public class SplitText {
             BufferedReader br = new BufferedReader(new FileReader(new File(srcDir)));//构造一个BufferedReader类来读取文件
             String temp =br.readLine();
 			StringBuffer sb = null;
-			
 			while(temp!=null){
 				sb = new StringBuffer("");
             	String target = targetDir.substring(targetDir.lastIndexOf("\\")+1,targetDir.lastIndexOf("."));

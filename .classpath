@@ -3,6 +3,19 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jre7"/>
 	<classpathentry kind="lib" path="/JnaTest_V1/lib/jna-4.0.0.jar"/>
-	<classpathentry kind="lib" path="D:/Download/ujmp-complete-0.3.0 (1).jar"/>
+	<classpathentry kind="src" path="/NLPLDAYL"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/stanford-corenlp-3.4.1-models.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/javax.json.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/javax.json-api-1.0-sources.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/joda-time.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/joda-time-2.1-sources.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/jollyday.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/jollyday-0.4.7-sources.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/stanford-corenlp-3.4.1.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/stanford-corenlp-3.4.1-javadoc.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/stanford-corenlp-3.4.1-sources.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/xom.jar"/>
+	<classpathentry kind="lib" path="D:/Download/stanford-corenlp-full-2014-08-27/stanford-corenlp-full-2014-08-27/xom-1.2.10-src.jar"/>
+	<classpathentry kind="lib" path="D:/Download/ujmp-complete-0.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
